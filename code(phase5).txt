@@ -1,0 +1,54 @@
+import json
+
+# ── Mock user data stored as a dictionary ────────────────────────────
+user_data = {
+    "john_doe": {
+        "purchases": ["laptop"]
+    },
+    "jane_wills": {
+        "purchases": ["phone"]
+    },
+    "alex_ray": {
+        "purchases": ["camera"]
+    }
+}
+
+# ── Simple recommendation logic ──────────────────────────────────────
+def recommend_products(purchased_items):
+    catalog = {
+        "laptop":  ["mouse", "keyboard", "USB hub"],
+        "phone":   ["phone case", "earphones", "screen protector"],
+        "camera":  ["tripod", "memory card", "camera bag"]
+    }
+
+    recommendations = set()           # avoid duplicates
+    for item in purchased_items:
+        if item in catalog:
+            recommendations.update(catalog[item])
+
+    return list(sorted(recommendations))  # sorted list for neatness
+
+
+# ── Console interaction ───────────────────────────────────────────────
+def main():
+    print("Welcome to the Personalized Marketing Assistant")
+    username = input("Enter your username: ").strip().lower()
+
+    if username in user_data:
+        purchases = user_data[username]["purchases"]
+        print(f"\nHello, {username}!")
+        print(f"Your past purchases: {', '.join(purchases)}")
+
+        recs = recommend_products(purchases)
+        if recs:
+            print("\nWe recommend the following products for you:")
+            for r in recs:
+                print(f"  • {r}")
+        else:
+            print("No additional recommendations found.")
+    else:
+        print("User not found. Please check the username and try again.")
+
+
+if _name_ == "_main_":
+    main()

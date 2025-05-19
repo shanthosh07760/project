@@ -1,0 +1,49 @@
+# personalized_marketing.py
+
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.metrics.pairwise import cosine_similarity
+
+# -------- Customer Segmentation --------
+# Sample customer behavior data
+customer_data = pd.DataFrame({
+    'customer_id': [1, 2, 3, 4, 5],
+    'avg_purchase_value': [200, 150, 300, 100, 250],
+    'visits_per_month': [4, 5, 2, 4, 1],
+    'response_to_marketing': [1, 1, 0, 1, 1]
+})
+
+# K-Means Clustering for segmentation
+kmeans = KMeans(n_clusters=2, random_state=42)
+customer_data['segment'] = kmeans.fit_predict(customer_data[['avg_purchase_value', 'visits_per_month']])
+
+print("Customer Segmentation:")
+print(customer_data[['customer_id', 'segment']])
+print()
+
+# -------- Product Recommendation --------
+# Sample user-item ratings matrix
+ratings = pd.DataFrame({
+    'product_1': [5, 3, 0, 0, 2],
+    'product_2': [4, 0, 2, 0, 3],
+    'product_3': [1, 1, 5, 2, 0],
+    'product_4': [0, 0, 5, 4, 1],
+}, index=['User_1', 'User_2', 'User_3', 'User_4', 'User_5'])
+
+# Collaborative Filtering via cosine similarity
+similarity = cosine_similarity(ratings)
+sim_df = pd.DataFrame(similarity, index=ratings.index, columns=ratings.index)
+
+# Recommend products for a user (e.g., User_3)
+target_user = 'User_3'
+similar_users = sim_df[target_user].sort_values(ascending=False)[1:]  # exclude self
+
+# Weighted recommendation score
+recommendation_scores = np.dot(similar_users.values, ratings.loc[similar_users.index])
+unseen_products = ratings.loc[target_user] == 0
+recommended = pd.Series(recommendation_scores, index=ratings.columns)
+recommended = recommended[unseen_products].sort_values(ascending=False)
+
+print(f"Recommendations for {target_user}:")
+print(recommended.head(3))

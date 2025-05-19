@@ -1,0 +1,46 @@
+import pandas as pd
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.cluster import KMeans
+
+# Mock user‑product interaction data (behavioral data)
+data = {
+    'User': ['Alice', 'Bob', 'Charlie', 'David', 'Eva'],
+    'Product_A': [5, 3, 0, 0, 4],
+    'Product_B': [0, 2, 5, 3, 1],
+    'Product_C': [4, 0, 4, 0, 2],
+    'Product_D': [1, 0, 2, 4, 0]
+}
+
+# Convert to DataFrame
+df = pd.DataFrame(data).set_index('User')
+print("User‑Product Interaction Matrix:\n", df)
+
+# 1. Recommendation Engine using Cosine Similarity
+similarity_matrix = cosine_similarity(df)
+similarity_df = pd.DataFrame(similarity_matrix, index=df.index, columns=df.index)
+print("\nUser Similarity Matrix:\n", similarity_df)
+
+# Recommend products to 'Alice' by finding the most similar user
+target_user = 'Alice'
+most_similar_user = similarity_df[target_user].drop(target_user).idxmax()
+
+print(f"\nMost similar to {target_user}: {most_similar_user}")
+recommendations = df.loc[most_similar_user][df.loc[target_user] == 0]
+print(f"Recommended items for {target_user}:\n", recommendations)
+
+# 2. Customer Segmentation using K‑Means
+kmeans = KMeans(n_clusters=2, random_state=42)
+df['Segment'] = kmeans.fit_predict(df)
+
+print("\nCustomer Segmentation:\n", df[['Segment']])
+
+# 3. Omnichannel Data Integration (mocked)
+omnichannel_data = {
+    'Alice': {'web': 5, 'email': 3, 'social': 4},
+    'Bob'  : {'web': 3, 'email': 1, 'social': 2},
+}
+
+print("\nOmnichannel Interaction Data:")
+for user, channels in omnichannel_data.items():
+    print(f"{user}: {channels}")
